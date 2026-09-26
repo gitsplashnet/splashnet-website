@@ -27,3 +27,8 @@ Then open http://localhost:8080.
 
 There's no backend yet, so the form opens the visitor's email app with a pre-filled message to `info@splashnetech.com`.
 To receive submissions directly, point the form at a service such as Formspree: add `action="https://formspree.io/f/<id>" method="POST" data-native` to `<form id="contact-form">` in `contact.html`.
+
+
+
+
+work in prpogress
