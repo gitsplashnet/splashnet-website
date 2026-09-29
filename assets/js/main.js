@@ -41,6 +41,79 @@
     items.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
+  // Client marquee: repeat each row's logos until they overflow the screen,
+  // so the loop never shows a gap. Copies are hidden from screen readers.
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduceMotion) {
+    document.querySelectorAll('.marquee').forEach(function (row) {
+      var group = row.querySelector('.marquee__group');
+      if (!group) return;
+      var n = group.children.length;
+      while (group.scrollWidth < window.innerWidth * 1.5 && n) {
+        for (var i = 0; i < n; i++) group.appendChild(group.children[i].cloneNode(true)).setAttribute('aria-hidden', 'true');
+      }
+      var copy = group.cloneNode(true);
+      copy.setAttribute('aria-hidden', 'true');
+      row.appendChild(copy);
+      row.style.setProperty('--speed', Math.round(group.scrollWidth / 45) + 's');
+    });
+  }
+
+  // Services mega menu: hover/focus opens it on desktop; the chevron button
+  // toggles it (and is the only way to open it in the mobile menu).
+  document.querySelectorAll('.has-mega').forEach(function (item) {
+    var btn = item.querySelector('.mega__toggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var open = item.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    item.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && item.classList.contains('is-open')) {
+        item.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.focus();
+      }
+    });
+    document.addEventListener('click', function (e) {
+      if (!item.contains(e.target) && window.innerWidth > 900) {
+        item.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+
+  // Project slider
+  document.querySelectorAll('.slider').forEach(function (slider) {
+    var slides = slider.querySelectorAll('.case');
+    var dots = slider.querySelectorAll('.slider__dot');
+    var current = 0;
+    var timer;
+    function show(n) {
+      n = (n + slides.length) % slides.length;
+      if (n === current) return;
+      slides[current].hidden = true;
+      slides[n].hidden = false;
+      slides[n].classList.remove('is-entering');
+      void slides[n].offsetWidth;
+      slides[n].classList.add('is-entering');
+      dots[current].removeAttribute('aria-current');
+      dots[n].setAttribute('aria-current', 'true');
+      current = n;
+    }
+    function autoplay() {
+      clearInterval(timer);
+      if (!reduceMotion) timer = setInterval(function () { show(current + 1); }, 7000);
+    }
+    slider.querySelector('.slider__arrow--prev').addEventListener('click', function () { show(current - 1); autoplay(); });
+    slider.querySelector('.slider__arrow--next').addEventListener('click', function () { show(current + 1); autoplay(); });
+    dots.forEach(function (dot, n) { dot.addEventListener('click', function () { show(n); autoplay(); }); });
+    slider.addEventListener('mouseenter', function () { clearInterval(timer); });
+    slider.addEventListener('mouseleave', autoplay);
+    slider.addEventListener('focusin', function () { clearInterval(timer); });
+    autoplay();
+  });
+
   // Footer year
   document.querySelectorAll('[data-year]').forEach(function (el) {
     el.textContent = new Date().getFullYear();
