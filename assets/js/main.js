@@ -114,6 +114,44 @@
     autoplay();
   });
 
+  // Projects carousel: native horizontal scrolling (so touch swipe works),
+  // with arrows and a gentle auto-advance that pauses while hovered or focused.
+  document.querySelectorAll('.projects__carousel').forEach(function (carousel) {
+    var track = carousel.querySelector('.projects__track');
+    var prev = carousel.querySelector('[data-dir="-1"]');
+    var next = carousel.querySelector('[data-dir="1"]');
+    var timer;
+    function step() {
+      var card = track.querySelector('.project');
+      return card ? card.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 0) : track.clientWidth;
+    }
+    function atEnd() { return track.scrollLeft + track.clientWidth >= track.scrollWidth - 4; }
+    function update() {
+      prev.disabled = track.scrollLeft <= 4;
+      next.disabled = atEnd();
+    }
+    function go(dir) { track.scrollBy({ left: dir * step(), behavior: reduceMotion ? 'auto' : 'smooth' }); }
+    function autoplay() {
+      clearInterval(timer);
+      if (reduceMotion) return;
+      timer = setInterval(function () {
+        if (atEnd()) track.scrollTo({ left: 0, behavior: 'smooth' });
+        else go(1);
+      }, 4500);
+    }
+    prev.addEventListener('click', function () { go(-1); autoplay(); });
+    next.addEventListener('click', function () { go(1); autoplay(); });
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    carousel.addEventListener('mouseenter', function () { clearInterval(timer); });
+    carousel.addEventListener('mouseleave', autoplay);
+    carousel.addEventListener('focusin', function () { clearInterval(timer); });
+    carousel.addEventListener('focusout', autoplay);
+    carousel.addEventListener('touchstart', function () { clearInterval(timer); }, { passive: true });
+    update();
+    autoplay();
+  });
+
   // Footer year
   document.querySelectorAll('[data-year]').forEach(function (el) {
     el.textContent = new Date().getFullYear();
