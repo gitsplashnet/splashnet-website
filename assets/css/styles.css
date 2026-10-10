@@ -372,19 +372,14 @@ p { margin: 0 0 1em; }
 .marquee:hover .marquee__group { animation-play-state: paused; }
 @keyframes marquee { to { transform: translateX(calc(-100% - var(--gap))); } }
 
-.client { display: flex; align-items: center; gap: 12px; flex: none; height: 64px; }
-.client__mark {
-  min-width: 48px; height: 48px; padding: 0 8px; border-radius: 12px;
-  display: grid; place-items: center; flex: none;
-  font-family: var(--font-display); font-weight: 700; font-size: .95rem; letter-spacing: .02em; color: #fff;
-  background: linear-gradient(135deg, hsl(var(--hue) 65% 42%), hsl(calc(var(--hue) + 30) 70% 52%));
-}
-.client img { height: 48px; width: auto; }
-.client__name { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--ink); white-space: nowrap; letter-spacing: -.01em; }
+.client { display: flex; align-items: center; gap: 12px; flex: none; height: 84px; }
+.client img { height: 84px; width: auto; max-width: none; object-fit: contain; }
+.client--wide img { height: 44px; }
 
 @media (max-width: 560px) {
-  .client__mark { min-width: 40px; height: 40px; }
-  .client__name { font-size: 1.02rem; }
+  .client { height: 64px; }
+  .client img { height: 64px; }
+  .client--wide img { height: 34px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .marquee { -webkit-mask-image: none; mask-image: none; justify-content: center; padding: 0 var(--gutter); }
